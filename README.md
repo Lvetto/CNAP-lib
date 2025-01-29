@@ -6,7 +6,7 @@
 - `CNA.py` – Main analysis code.
 - `Graphs/` – Classes for drawing different types of graphs.
 - `old/` – some code from **pySNOW**. (should be removed and replaced with a submodule or similar)
-- `crystal_maker.py` - some code to create periodic lattices
+- `crystal_maker.py` - some code to create periodic lattices.
 
 ## Dependencies  
 - `matplotlib`  
