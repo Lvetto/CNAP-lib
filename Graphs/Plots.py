@@ -152,9 +152,11 @@ class line_3d_plot(plot_3d):
             self.lines.append(self.ax.plot(x, y, z, lw=1))
 
 class bar_plot(basic_plot):
-    def __init__(self, ax, bar_data, crosses=[[], []], width=1, title=""):
+    def __init__(self, ax, bar_data, crosses=[[], []], width=1, title="", x_title="", y_title=""):
         super().__init__(ax,bar_data, title)
         ax.bar(bar_data[0],bar_data[1], edgecolor="k", width=width)
         ax.plot(crosses[0], crosses[1], "rx")
+        ax.set_xlabel(x_title)
+        ax.set_ylabel(y_title)
 
 
