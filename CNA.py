@@ -104,40 +104,81 @@ def get_adj_sub_mat(adj_mat, cns):
 # It should be something similar to this: https://en.wikipedia.org/wiki/Depth-first_search
 # I pretty much copied the pseudocode and turned it into python, then added a few lines to keep track of the maximum lenght (depth?)
 def explore_graph(adj_list, starting_node):
+    """
+    Explore all paths on a graph starting from starting_node and keep track of the max lenght encountered
+
+    Args:
+        adj_list (np.array): adjacency list for the graph
+        starting_node (int): index of the starting node
+
+    Returns:
+        int: lenght of the longest path found
+    """
+
     max_lenght = 0
     discovered = []
     stack = []
+
     stack.append((starting_node, 0))
     while (len(stack) > 0):
         v, l = stack[-1]
         stack = stack[:-1]
+
         if (v not in discovered):
             discovered.append(v)
             max_lenght = max(max_lenght, l)
+
             for w in adj_list[v]:
                 if (w not in discovered):
                     stack.append((w, l+1))
-    
+
     return max_lenght
 
 def longest_chain_lenght(adj_list):
+    """
+    Explore all paths on a graph while keeping track of the max lenght encountered
+
+    Args:
+        adj_list (np.array): adjacency list for the graph
+
+    Returns:
+        int: lenght of the longest path found
+    """
+
     max_lenght = 0
     for i,_ in enumerate(adj_list):
         max_lenght = max(explore_graph(adj_list, i), max_lenght)
+
     return max_lenght
 
 def get_signature(adj_mat):
+    """
+    Create a dict of CNA signatures for each bonded pair of atoms in the system
+
+    Args:
+        adj_mat (np.array): the adjacency matrix for the system
+
+    Returns:
+        dict: a dict where the keys are bonds and the values are CNA signature for that bond
+    """
+
+    # compute an adj list and extract all bonds
     adj_list = get_adj_list(adj_mat)
     bonds = get_all_bonds(adj_mat)
     bonds = [tuple(i) for i in bonds]   # make the bonds hashable
 
+    # compute common neighbors for each bond, then extract bonds between these common neighbors
     common_neighbors = get_common_neighbors(adj_list, bonds)
     common_bonds = {bond: get_common_bonds(adj_mat, cns) for bond, cns in zip(common_neighbors.keys(), common_neighbors.values())}
- 
+
+    # compute adj matrices and lists for all sets of common neighbors
     adj_mats = {bond: get_adj_sub_mat(adj_mat, common_neighbors[bond]) for bond in bonds}
     adj_lists = {bond: get_adj_list(adj_mats[bond]) for bond in bonds}
+ 
+    # find longest chains for each bond
     longest_chains = {bond: longest_chain_lenght(adj_lists[bond]) for bond in bonds}
 
+    # compile a dict of signatures
     signatures = {bond: (len(common_neighbors[bond]), len(common_bonds[bond]), longest_chains[bond]) for bond in bonds}
 
     return signatures
