@@ -38,7 +38,7 @@ occurrences = get_occurrences(signatures)
 t3 = time()
 
 # print out some info
-print(f"Number of atoms {len(points)}\nTime taken:\n\tCreating lattice: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurrences: {t3-t2:.2f}s")
+print(f"Number of atoms {len(points)}\nTime taken:\n\tLoading data and computing cutoff: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurrences: {t3-t2:.2f}s")
 print("Occurrences:")
 [print(f"\t{signature}: {occurrance}") for signature, occurrance in zip(occurrences.keys(), occurrences.values())]
 
