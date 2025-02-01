@@ -33,19 +33,14 @@ signatures = get_signature(adj_mat)
 t2 = time()
 
 # count occurrances
-occurances = {}
-for bond, signature in zip(signatures.keys(), signatures.values()):
-    if (signature in occurances.keys()):
-        occurances[signature] += 1
-    else:
-        occurances[signature] = 1
+occurrences = get_occurrences(signatures)
 
 t3 = time()
 
 # print out some info
-print(f"Number of atoms {len(points)}\nTime taken:\n\tCreating lattice: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurances: {t3-t2:.2f}s")
-print("Occurances:")
-[print(f"\t{signature}: {occurrance}") for signature, occurrance in zip(occurances.keys(), occurances.values())]
+print(f"Number of atoms {len(points)}\nTime taken:\n\tCreating lattice: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurrences: {t3-t2:.2f}s")
+print("Occurrences:")
+[print(f"\t{signature}: {occurrance}") for signature, occurrance in zip(occurrences.keys(), occurrences.values())]
 
 # draw the points and their bonds
 pointsets = [PointCloud(points, size=10, alpha=0.5)]
@@ -54,5 +49,5 @@ line_data = np.array([(points[i], points[j]) for i,j in bonds])
 linesets = [LineSet(line_data, linestyle=":", alpha=1)]
 
 fig = FigureBuilder((1, 1))
-fig.add_plot(better_particle_plot, ax=fig[0], points=pointsets, lines=linesets, hide_frames=False)
+fig.add_plot(better_particle_plot, ax=fig[0], points=pointsets, lines=linesets, hide_frames=True)
 plt.show()

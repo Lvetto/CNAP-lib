@@ -98,9 +98,6 @@ def get_adj_sub_mat(adj_mat, cns):
 
     return sub_adj_mat
 
-
-# VERY experimental!
-
 # It should be something similar to this: https://en.wikipedia.org/wiki/Depth-first_search
 # I pretty much copied the pseudocode and turned it into python, then added a few lines to keep track of the maximum lenght (depth?)
 def explore_graph(adj_list, starting_node):
@@ -182,3 +179,23 @@ def get_signature(adj_mat):
     signatures = {bond: (len(common_neighbors[bond]), len(common_bonds[bond]), longest_chains[bond]) for bond in bonds}
 
     return signatures
+
+def get_occurrences(signatures):
+    """
+    Count occurrences for each unique CNA signature
+
+    Args:
+        signatures (dict): a dict of CNA signatures per bond
+
+    Returns:
+        dict: a dict of unique signatures and their occurrences
+    """
+    occurrences = {}
+    for bond, signature in zip(signatures.keys(), signatures.values()):
+        if (signature in occurrences.keys()):
+            occurrences[signature] += 1
+        else:
+            occurrences[signature] = 1
+
+    return occurrences
+

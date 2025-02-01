@@ -22,16 +22,11 @@ signatures = get_signature(adj_mat)
 t2 = time()
 
 # count occurrances
-occurances = {}
-for bond, signature in zip(signatures.keys(), signatures.values()):
-    if (signature in occurances.keys()):
-        occurances[signature] += 1
-    else:
-        occurances[signature] = 1
+occurrences = get_occurrences(signatures)
 
 t3 = time()
 
 # Print out some info
-print(f"Number of atoms {len(lattice)}\nTime taken:\n\tCreating lattice: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurances: {t3-t2:.2f}s")
-print("Occurances:")
-[print(f"\t{signature}: {occurrance}") for signature, occurrance in zip(occurances.keys(), occurances.values())]
+print(f"Number of atoms {len(lattice)}\nTime taken:\n\tCreating lattice: {t1-t0:.2f}s\n\tComputing signatures: {t2-t1:.2f}s\n\tCounting occurrences: {t3-t2:.2f}s")
+print("Occurrences:")
+[print(f"\t{signature}: {occurrance}") for signature, occurrance in zip(occurrences.keys(), occurrences.values())]
