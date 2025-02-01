@@ -199,3 +199,30 @@ def get_occurrences(signatures):
 
     return occurrences
 
+def get_feature_vectors(signatures):
+    feature_vectors = {}
+
+    for bond, signature in zip(signatures.keys(), signatures.values()):
+        i,j = bond
+
+        # make sure atoms i,j are in the dict
+        if (i not in feature_vectors.keys()):
+            feature_vectors[i] = {}
+
+        if (j not in feature_vectors.keys()):
+            feature_vectors[j] = {}
+
+        # if signature was already encountered for atom i, add 1 to the number of occurences, otherwise set it to 1
+        if (signature not in feature_vectors[i].keys()):
+            feature_vectors[i][signature] = 1
+        else:
+            feature_vectors[i][signature] += 1
+
+        # if signature was already encountered for atom j, add 1 to the number of occurences, otherwise set it to 1
+        if (signature not in feature_vectors[j].keys()):
+            feature_vectors[j][signature] = 1
+        else:
+            feature_vectors[j][signature] += 1
+
+    return feature_vectors
+

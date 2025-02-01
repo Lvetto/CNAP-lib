@@ -10,7 +10,7 @@ t0 = time()
 
 # create a periodic lattice
 a = 1
-lattice = np.array(cubic_lattice_from_cell(a, 10, fcc_cell(a)))
+lattice = np.array(cubic_lattice_from_cell(a, 5, fcc_cell(a)))
 
 t1 = time()
 
@@ -21,7 +21,7 @@ signatures = get_signature(adj_mat)
 
 t2 = time()
 
-# count occurrances
+# count occurrences
 occurrences = get_occurrences(signatures)
 
 t3 = time()
