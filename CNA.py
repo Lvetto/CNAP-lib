@@ -72,14 +72,32 @@ def get_common_bonds(adj_mat, cns):
     """
 
     cns = np.array(cns)     # cns must be a  numpy array for this to work
-    sub_adj_mat = adj_mat[np.ix_(cns, cns)] # make an adjacency matrix for the atoms in the LAE by extracting elements i,j where both i and j are in LAE
-    np.fill_diagonal(sub_adj_mat, 0)
-    bonds = np.array(get_all_bonds(sub_adj_mat))  # we already have a way to make a list of bonds from an adj matrix.
+    sub_adj_mat = get_adj_sub_mat(adj_mat, cns) # get syb matrix describing the common neighbors
+    bonds = np.array(get_all_bonds(sub_adj_mat))  # extract nodes from the matrix
 
-    # we have to change the indices
+    # change the indices to refer to the whole system
     bonds = cns[bonds]
 
     return bonds
+
+def get_adj_sub_mat(adj_mat, cns):
+    """
+    Create and adjacency matrix for a subset of nodes starting from a matrix describing a bigger system
+
+    Args:
+        adj_mat (np.array): adjacency matrix for the bigger system
+        cns (list): indices for the subset of nodes to consider
+
+    Returns:
+        np.array: adjacency matrix for the subset of nodes
+    """
+
+    cns = np.array(cns)     # cns must be a  numpy array for this to work
+    sub_adj_mat = adj_mat[np.ix_(cns, cns)] # make an adjacency matrix for the cns by extracting elements i,j where both i and j are in cns
+    np.fill_diagonal(sub_adj_mat, 0)    # set the diagonal to 0. Avoids some issues when extracting bonds
+
+    return sub_adj_mat
+
 
 # VERY experimental!
 
@@ -104,17 +122,22 @@ def explore_graph(adj_list, starting_node):
 
 def longest_chain_lenght(adj_list):
     max_lenght = 0
-    for i, in enumerate(adj_list):
+    for i,_ in enumerate(adj_list):
         max_lenght = max(explore_graph(adj_list, i), max_lenght)
     return max_lenght
 
 def get_signature(adj_mat):
     adj_list = get_adj_list(adj_mat)
     bonds = get_all_bonds(adj_mat)
+    bonds = [tuple(i) for i in bonds]   # make the bonds hashable
 
     common_neighbors = get_common_neighbors(adj_list, bonds)
     common_bonds = {bond: get_common_bonds(adj_mat, cns) for bond, cns in zip(common_neighbors.keys(), common_neighbors.values())}
+ 
+    adj_mats = {bond: get_adj_sub_mat(adj_mat, common_neighbors[bond]) for bond in bonds}
+    adj_lists = {bond: get_adj_list(adj_mats[bond]) for bond in bonds}
+    longest_chains = {bond: longest_chain_lenght(adj_lists[bond]) for bond in bonds}
 
-    signatures = {tuple(bond): (len(common_neighbors[tuple(bond)]), len(common_bonds[tuple(bond)])) for bond in bonds}
+    signatures = {bond: (len(common_neighbors[bond]), len(common_bonds[bond]), longest_chains[bond]) for bond in bonds}
 
     return signatures
