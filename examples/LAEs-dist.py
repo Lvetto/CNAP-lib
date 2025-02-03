@@ -37,9 +37,13 @@ bin_edges = np.array([r_min + i * dr for i in range(ceil((r_max - r_min) / dr) +
 binned_radii = np.digitize(radii, bin_edges)
 bins = [[0 for _ in bin_edges] for _ in unique_LAEs]
 
+# make a list to keep track of occurrences of every LAE type
+LAE_occurrences = [0 for _ in enumerate(unique_LAEs)]
+
 # count LAEs for each bin
 for atom, LAE in zip(fvs.keys(), fvs.values()):
     bins[unique_LAEs.index(LAE)][binned_radii[atom]] += 1
+    LAE_occurrences[unique_LAEs.index(LAE)] +=1
 
 volumes = [(4/3)*pi*((r+dr)**3-r**3) for r in bin_edges]    # volume of each spherical shell
 densities = [[c/v for c,v in zip(bins[n], volumes)] for n,_ in enumerate(bins)]
@@ -55,6 +59,12 @@ for idx in reversed(sorted_indices):
 fig[0].legend()
 fig[0].set_xlabel("distance from center")
 fig[0].set_ylabel("density")
+
+# make another figure to just show the number of occurrences of every LAE (I need the figure in the thesis)
+fig2 = FigureBuilder((1,1), title="LAEs occurrences")
+fig2[0].bar(range(len(LAE_occurrences)), LAE_occurrences, width=0.5, edgecolor="k")
+fig2[0].set_xticks(range(len(LAE_occurrences)))
+fig2[0].set_xticklabels(unique_LAEs)
 
 plt.tight_layout()
 plt.show()
