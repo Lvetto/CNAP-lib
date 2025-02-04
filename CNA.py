@@ -1,204 +1,96 @@
 from old.utils import adjacency_matrix
 import numpy as np
 
-def get_all_bonds(adj_mat):
-    """
-    Make a list of all unique bonded atom indices
+class Graph:
+    def __init__(self, adj_mat, node_positions, fill_diag=True):
+        self.adj_mat = adj_mat
 
-    Parameters:
-    adj_mat:    np.array
-        the adjacency matrix of the system
+        if (fill_diag):
+            np.fill_diagonal(self.adj_mat, 0)
+
+        self.adj_list = self.make_adj_list()
+        self.positions = node_positions
+
+    def make_adj_list(self):
+        return [np.where(row)[0] for row in self.adj_mat == 1]
+
+    def make_subgraph(self, nodes):
+        nodes = np.array(nodes)
+        sub_adj_mat = self.adj_mat[np.ix_(nodes, nodes)] # make an adjacency matrix for the nodes of the subgraph by extracting elements i,j where both i and j are in the subgraph
+        np.fill_diagonal(sub_adj_mat, 0)    # set the diagonal to 0. Avoids some issues when extracting bonds
+
+        return Graph(sub_adj_mat, self.positions[nodes])
     
-    Returns:
-    unique_pairs:   np.array
-        an array of unique pairs of bonded atoms
-    
-    """
+    def longest_chain_from_node(self, starting_node):
+        max_lenght = 0
+        discovered = []
+        stack = []
 
-    pairs = np.argwhere(adj_mat == 1)   # extract (i,j) where a_ij=1
-    sorted_pairs = np.sort(pairs, axis=1)   # sort each pair of indices
-    unique_pairs = np.unique(sorted_pairs, axis=0)  # remove duplicates
+        stack.append((starting_node, 0))
+        while (len(stack) > 0):
+            v, l = stack[-1]
+            stack = stack[:-1]
 
-    return unique_pairs
+            if (v not in discovered):
+                discovered.append(v)
+                max_lenght = max(max_lenght, l)
 
-def get_adj_list(adj_mat):
-    """
-    Make an adjacency list from an adjacency matrix
+                for w in self.adj_list[v]:
+                    if (w not in discovered):
+                        stack.append((w, l+1))
 
-    Parameters:
-    adj_mat:    np.array
-        the adjacency matrix of the system
-    
-    Returns:
-    adj list:   np.array
-        a list of lists, (i don't know how to word the rest)
-    
-    """
+        return max_lenght
 
-    return [np.where(row)[0] for row in adj_mat == 1]
+    @property
+    def longest_chain(self):
+        max_lenght = 0
+        for i,_ in enumerate(self.adj_list):
+            max_lenght = max(self.longest_chain_from_node(i), max_lenght)
 
-def get_common_neighbors(adj_list, bonds):
-    """
-    Make a dictionary of lists of common neighbours
-    Element [(i, j)] would be the common neighbours for atoms i,j
+        return max_lenght
 
-    Parameters:
-    adj_list:   np.array
-        the ajacency list for the system
-    bonds:  np.array
-        a list of all bonded atom pairs
-    
-    Returns:
-    CNs: dict
-        a dict of common neighbours
-    """
+    @property
+    def unique_bonds(self):
+        pairs = np.argwhere(self.adj_mat == 1)   # extract (i,j) where a_ij=1
+        sorted_pairs = np.sort(pairs, axis=1)   # sort each pair of indices
+        unique_pairs = np.unique(sorted_pairs, axis=0)  # remove duplicates
 
-    CNs = {(i,j) : np.intersect1d(adj_list[i], adj_list[j]) for i,j in bonds}   # common neighbours for the two atoms are the intersection of their adjacency list
-    return CNs
+        return unique_pairs
 
-def get_common_bonds(adj_mat, cns):
-    """
-    Make a list of unique bonded atom pairs with atoms from a local environment
+    @property
+    def number_of_unique_bonds(self):
+        return len(self.unique_bonds)
 
-    Parameters:
-    adj_list:   np.array
-        the ajacency list for the system
-    cns:  np.array
-        the common neighbors to consider
-    
-    Returns:
-    CBs: list
-        a list of bonds between common neighbours
-    """
+    @property
+    def number_of_nodes(self):
+        return self.adj_mat.shape[0]
 
-    cns = np.array(cns)     # cns must be a  numpy array for this to work
-    sub_adj_mat = get_adj_sub_mat(adj_mat, cns) # get syb matrix describing the common neighbors
-    bonds = np.array(get_all_bonds(sub_adj_mat))  # extract nodes from the matrix
+def get_cns_subgraphs(graph):
+    subgraphs = [graph.make_subgraph(np.intersect1d(graph.adj_list[i], graph.adj_list[j])) for i,j in graph.unique_bonds]
+    return subgraphs
 
-    # change the indices to refer to the whole system
-    bonds = cns[bonds]
+def compute_signatures(graph):
+    subgraphs = get_cns_subgraphs(graph)
 
-    return bonds
-
-def get_adj_sub_mat(adj_mat, cns):
-    """
-    Create and adjacency matrix for a subset of nodes starting from a matrix describing a bigger system
-
-    Args:
-        adj_mat (np.array): adjacency matrix for the bigger system
-        cns (list): indices for the subset of nodes to consider
-
-    Returns:
-        np.array: adjacency matrix for the subset of nodes
-    """
-
-    cns = np.array(cns)     # cns must be a  numpy array for this to work
-    sub_adj_mat = adj_mat[np.ix_(cns, cns)] # make an adjacency matrix for the cns by extracting elements i,j where both i and j are in cns
-    np.fill_diagonal(sub_adj_mat, 0)    # set the diagonal to 0. Avoids some issues when extracting bonds
-
-    return sub_adj_mat
-
-# It should be something similar to this: https://en.wikipedia.org/wiki/Depth-first_search
-# I pretty much copied the pseudocode and turned it into python, then added a few lines to keep track of the maximum lenght (depth?)
-def explore_graph(adj_list, starting_node):
-    """
-    Explore all paths on a graph starting from starting_node and keep track of the max lenght encountered
-
-    Args:
-        adj_list (np.array): adjacency list for the graph
-        starting_node (int): index of the starting node
-
-    Returns:
-        int: lenght of the longest path found
-    """
-
-    max_lenght = 0
-    discovered = []
-    stack = []
-
-    stack.append((starting_node, 0))
-    while (len(stack) > 0):
-        v, l = stack[-1]
-        stack = stack[:-1]
-
-        if (v not in discovered):
-            discovered.append(v)
-            max_lenght = max(max_lenght, l)
-
-            for w in adj_list[v]:
-                if (w not in discovered):
-                    stack.append((w, l+1))
-
-    return max_lenght
-
-def longest_chain_lenght(adj_list):
-    """
-    Explore all paths on a graph while keeping track of the max lenght encountered
-
-    Args:
-        adj_list (np.array): adjacency list for the graph
-
-    Returns:
-        int: lenght of the longest path found
-    """
-
-    max_lenght = 0
-    for i,_ in enumerate(adj_list):
-        max_lenght = max(explore_graph(adj_list, i), max_lenght)
-
-    return max_lenght
-
-def get_signature(adj_mat):
-    """
-    Create a dict of CNA signatures for each bonded pair of atoms in the system
-
-    Args:
-        adj_mat (np.array): the adjacency matrix for the system
-
-    Returns:
-        dict: a dict where the keys are bonds and the values are CNA signature for that bond
-    """
-
-    # compute an adj list and extract all bonds
-    adj_list = get_adj_list(adj_mat)
-    bonds = get_all_bonds(adj_mat)
-    bonds = [tuple(i) for i in bonds]   # make the bonds hashable
-
-    # compute common neighbors for each bond, then extract bonds between these common neighbors
-    common_neighbors = get_common_neighbors(adj_list, bonds)
-    common_bonds = {bond: get_common_bonds(adj_mat, cns) for bond, cns in zip(common_neighbors.keys(), common_neighbors.values())}
-
-    # compute adj matrices and lists for all sets of common neighbors
-    adj_mats = {bond: get_adj_sub_mat(adj_mat, common_neighbors[bond]) for bond in bonds}
-    adj_lists = {bond: get_adj_list(adj_mats[bond]) for bond in bonds}
- 
-    # find longest chains for each bond
-    longest_chains = {bond: longest_chain_lenght(adj_lists[bond]) for bond in bonds}
-
-    # compile a dict of signatures
-    signatures = {bond: (len(common_neighbors[bond]), len(common_bonds[bond]), longest_chains[bond]) for bond in bonds}
+    signatures = []
+    for subgraph in subgraphs:
+        i = subgraph.number_of_nodes
+        j = subgraph.number_of_unique_bonds
+        k = subgraph.longest_chain
+        signatures.append((i,j,k))
 
     return signatures
 
 def get_occurrences(signatures):
-    """
-    Count occurrences for each unique CNA signature
+    unique_sigs, counts = np.unique(signatures, axis=0, return_counts=True)
 
-    Args:
-        signatures (dict): a dict of CNA signatures per bond
+    return {tuple(sig): count for sig, count in zip(unique_sigs, counts)}
 
-    Returns:
-        dict: a dict of unique signatures and their occurrences
-    """
-    occurrences = {}
-    for bond, signature in zip(signatures.keys(), signatures.values()):
-        if (signature in occurrences.keys()):
-            occurrences[signature] += 1
-        else:
-            occurrences[signature] = 1
 
-    return occurrences
 
+
+
+# doesn't work
 def get_feature_vectors(signatures):
     feature_vectors = {}
 
