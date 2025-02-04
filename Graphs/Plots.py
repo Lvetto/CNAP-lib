@@ -123,8 +123,6 @@ class better_particle_plot(plot_3d):
             for x,y,z in zip(surfaceset.xs, surfaceset.ys, surfaceset.zs):
                 self.surfaces.append(self.ax.plot_surface(x, y, z, vmin=z.min() * 2, vmax=z.max()*2, color=surfaceset.color, alpha=surfaceset.alpha, edgecolor=surfaceset.edgecolor))
 
-
-    
     def init_func(self):
         pass
 
@@ -132,7 +130,19 @@ class better_particle_plot(plot_3d):
         pass
 
 
+class graph_plot(better_particle_plot):
+    def __init__(self, ax, graph, pointsize=100, pointcolor="C0", pointalpha=1, linesize=5, linestyle="-", linecolor="k", linealpha=1, labels=[], title="", hide_frames=True):
+        # get data from the graph object
+        points = graph.positions
+        pairs = graph.unique_bonds
+        linedata = np.array([(points[i], points[j]) for i,j in pairs])
 
+        # make points and lines objects
+        pointclouds = [PointCloud(points, size=pointsize, color=pointcolor, alpha=pointalpha)]
+        linesets = [LineSet(linedata, linewidth=linesize, linestyle=linestyle, color=linecolor, alpha=linealpha)]
+
+        # call the init of better_particle_plot with the data created
+        super().__init__(ax, pointclouds, linesets, [], labels, title, hide_frames)
 
 
 
