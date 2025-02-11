@@ -16,20 +16,6 @@ class Graph:
             fill_diag (bool, optional): set to False to avoid setting elements on the diagonal to zero. Defaults to True.
         """
 
-    """
-    A class to represent graphs from graph theory, with methods and functions designed to work with CNA techniques
-    """
-    def __init__(self, adj_mat, node_positions=[], fill_diag=True):
-        """
-        Create a graph object from an adjacency matrix.
-
-
-        Args:
-            adj_mat (np.array): adjacency matrix for the graph
-            node_positions (np.array, optional): array of node positions
-            fill_diag (bool, optional): set to False to avoid setting elements on the diagonal to zero. Defaults to True.
-        """
-
         self.adj_mat = adj_mat
 
         if (fill_diag):
@@ -114,8 +100,6 @@ class Graph:
                         stack.append((w, l+1))
 
         return max_lenght
-
-    # Properties
 
     # Properties
 
