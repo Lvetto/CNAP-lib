@@ -16,6 +16,20 @@ class Graph:
             fill_diag (bool, optional): set to False to avoid setting elements on the diagonal to zero. Defaults to True.
         """
 
+    """
+    A class to represent graphs from graph theory, with methods and functions designed to work with CNA techniques
+    """
+    def __init__(self, adj_mat, node_positions=[], fill_diag=True):
+        """
+        Create a graph object from an adjacency matrix.
+
+
+        Args:
+            adj_mat (np.array): adjacency matrix for the graph
+            node_positions (np.array, optional): array of node positions
+            fill_diag (bool, optional): set to False to avoid setting elements on the diagonal to zero. Defaults to True.
+        """
+
         self.adj_mat = adj_mat
 
         if (fill_diag):
@@ -32,9 +46,26 @@ class Graph:
             list: the adjacency list
         """
 
+        """
+        Create an adjacency list from the adj matrix of the graph
+
+        Returns:
+            list: the adjacency list
+        """
+
         return [np.where(row)[0] for row in self.adj_mat == 1]
 
     def make_subgraph(self, nodes):
+        """
+        Create a graph object from a subset of the graph's nodes and have it inherit the connections
+
+        Args:
+            nodes (list/np.array): a list of node indices
+
+        Returns:
+            Graph: the subgraph made from the given nodes
+        """
+
         """
         Create a graph object from a subset of the graph's nodes and have it inherit the connections
 
@@ -86,8 +117,17 @@ class Graph:
 
     # Properties
 
+    # Properties
+
     @property
     def longest_chain(self):
+        """
+        A property representing the lenght of the longest chain of connected nodes in the graph
+
+        Returns:
+            int: lenght of the longest chain starting from any node in the graph
+        """
+
         """
         A property representing the lenght of the longest chain of connected nodes in the graph
 
@@ -111,6 +151,14 @@ class Graph:
             np.array: an array of unique pairs (i,j) where i,j are the indices of bonded atoms
         """
 
+        """
+        A property representing the set of unique bonds on the graph.
+        Repetitions and pair-ordering are already handled by this property
+
+        Returns:
+            np.array: an array of unique pairs (i,j) where i,j are the indices of bonded atoms
+        """
+
         pairs = np.argwhere(self.adj_mat == 1)   # extract (i,j) where a_ij=1
         sorted_pairs = np.sort(pairs, axis=1)   # sort each pair of indices
         unique_pairs = np.unique(sorted_pairs, axis=0)  # remove duplicates
@@ -119,6 +167,13 @@ class Graph:
 
     @property
     def number_of_unique_bonds(self):
+        """
+        A property representing the number of unique bonds in the graph
+
+        Returns:
+            int: number of unique (considering pair-orderings) bonds in the graph
+        """
+
         """
         A property representing the number of unique bonds in the graph
 
@@ -137,9 +192,26 @@ class Graph:
             int: number of nodes in the graph
         """
 
+        """
+        A property representing the number of nodes in the graph
+
+        Returns:
+            int: number of nodes in the graph
+        """
+
         return self.adj_mat.shape[0]
 
 def get_cns_subgraphs(graph):
+    """
+    Make a list of subgraphs representing common neighbors for each pair of bonded atoms
+
+    Args:
+        graph (Graph): the graph object representing the system
+
+    Returns:
+        list: a list of Graph object representing all subgraphs of common neighbors
+    """
+
     """
     Make a list of subgraphs representing common neighbors for each pair of bonded atoms
 
@@ -164,6 +236,16 @@ def compute_signatures(graph):
         list: list of signatures for each bonds
     """
 
+    """
+    Compute the CNA signatures for each pair of neighbors
+
+    Args:
+        graph (Graph): Graph object representing the system
+
+    Returns:
+        list: list of signatures for each bonds
+    """
+
     subgraphs = get_cns_subgraphs(graph)
 
     signatures = []
@@ -176,6 +258,16 @@ def compute_signatures(graph):
     return signatures
 
 def get_occurrences(signatures):
+    """
+    Count occurrences for each unique signature in the system
+
+    Args:
+        signatures (list): a list of signatures. Usually the return value of compute_signatures
+
+    Returns:
+        dict: a dict where keys are unique signatures in the system and values are the number of occurrences
+    """
+
     """
     Count occurrences for each unique signature in the system
 
