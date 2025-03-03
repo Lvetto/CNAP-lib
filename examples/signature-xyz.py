@@ -22,6 +22,7 @@ density = len(points) / volume
 # make a rough extimate for the cutoff distance as proportional to the average distance between points
 alpha = 1.2
 cutoff = alpha * (density)**(-1/3)
+cutoff = 2.93
 
 t1 = time()
 

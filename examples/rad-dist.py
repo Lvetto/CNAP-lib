@@ -9,7 +9,7 @@ from math import ceil, pi
 
 # create a periodic lattice
 a = 1
-lattice = np.array(cubic_lattice_from_cell(a, 15, fcc_cell(a)))
+lattice = np.array(cubic_lattice_from_cell(a, 10, fcc_cell(a)))
 
 # get the signatures
 adj_mat = adjacency_matrix(0, lattice, 0.8*a)
