@@ -3,7 +3,7 @@ import numpy as np
 # Classes used to pass arguments to some plot types. They mostly just need to store the values and do very little computation
 
 class PointCloud:
-    def __init__(self, points, size=10, color="C0", alpha=1, edgecolors="face", marker="o", depthshade=True):
+    def __init__(self, points, size=10, color="C0", alpha=1, edgecolors="face", marker="o", depthshade=True, label=""):
         if (len(points) > 0):
             self.xs = points[:,0]
             self.ys = points[:,1]
@@ -19,6 +19,7 @@ class PointCloud:
         self.edgecolors = edgecolors
         self.marker = marker
         self.depthshade = depthshade
+        self.label = label
 
 class LineSet:
     def __init__(self, lines, color="k", alpha=1, linestyle="-", linewidth=1):

@@ -80,7 +80,7 @@ class particle_plot(animated_plot, plot_3d):
 
 
 class better_particle_plot(plot_3d):
-    def __init__(self, ax, points=[], lines=[], surfaces=[], labels=[], title="", hide_frames=True):
+    def __init__(self, ax, points=[], lines=[], surfaces=[], labels=[], title="", hide_frames=True, legend=False):
         super().__init__(ax, [points, lines, surfaces, labels], title)
 
         # let the user decide if they want to show the axes
@@ -103,11 +103,17 @@ class better_particle_plot(plot_3d):
         self.labels = []
         self.draw_labels(labels)
 
+        if legend:
+            self.ax.legend()
+
     def draw_points(self, pointclouds):
         for cloud in pointclouds:
-            scatter = self.ax.scatter(cloud.xs, cloud.ys, cloud.zs, s=cloud.size, color=cloud.color, alpha=cloud.alpha, marker=cloud.marker, depthshade=cloud.depthshade)
+            scatter = self.ax.scatter(cloud.xs, cloud.ys, cloud.zs, s=cloud.size, color=cloud.color, alpha=cloud.alpha, marker=cloud.marker, depthshade=cloud.depthshade, label=cloud.label)
             self.scatters.append(scatter)
-    
+
+        for scatter, cloud in zip(self.scatters, pointclouds):
+            scatter.set_label(cloud.label)
+
     def draw_lines(self, linesets):
         for lineset in linesets:
             for xs, ys, zs in zip(lineset.xs, lineset.ys, lineset.zs):
