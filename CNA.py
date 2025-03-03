@@ -266,35 +266,118 @@ def get_occurrences(signatures):
 
     return {tuple(sig): count for sig, count in zip(unique_sigs, counts)}
 
+class FeatureVector:
+    """
+    A container class to encapsulate the data needed to define a feature vector 
+    """
+    def __init__(self, position, signatures):
+        """
+        Constructor for the FeatureVector class
 
+        Args:
+            position (np.array): the coordinates of the atom we are representing
+            signatures (list): a list of signatures the atom participates in
+        """
+        self.position = position
+        self.signatures = get_occurrences(signatures)
+    
+    def __repr__(self):
+        """
+        Allows for the formatted printing of the information contained in a FeatureVector
 
+        Returns:
+            string: a human readable representation of the feature vector
+        """
+        return f"Position: {self.position}\tSignatures: {self.signatures}"
 
+def get_feature_vectors(graph):
+    """
+    Creates feature vectors from a given graph
 
-# doesn't work
-def get_feature_vectors(signatures):
-    feature_vectors = {}
+    Args:
+        graph (Graph): a graph representing the neighborhood relationships of the atoms
 
-    for bond, signature in zip(signatures.keys(), signatures.values()):
-        i,j = bond
+    Returns:
+        list: a list of feature vectors
+    """
+    sigs = compute_signatures(graph)
+    bonds = graph.unique_bonds
 
-        # make sure atoms i,j are in the dict
-        if (i not in feature_vectors.keys()):
-            feature_vectors[i] = {}
+    sigs_per_node = [[] for _ in range(graph.number_of_nodes)]
 
-        if (j not in feature_vectors.keys()):
-            feature_vectors[j] = {}
+    for sig, bond in zip(sigs, bonds):
+        n1, n2 = bond
+        sigs_per_node[n1].append(sig)
+        sigs_per_node[n2].append(sig)
+    
+    if (len(graph.positions) > 0):
+        out = [FeatureVector(p, s) for p,s in zip(graph.positions, sigs_per_node)]
+    else:
+        out = [FeatureVector(None, s) for s in sigs_per_node]
 
-        # if signature was already encountered for atom i, add 1 to the number of occurences, otherwise set it to 1
-        if (signature not in feature_vectors[i].keys()):
-            feature_vectors[i][signature] = 1
-        else:
-            feature_vectors[i][signature] += 1
+    return out
 
-        # if signature was already encountered for atom j, add 1 to the number of occurences, otherwise set it to 1
-        if (signature not in feature_vectors[j].keys()):
-            feature_vectors[j][signature] = 1
-        else:
-            feature_vectors[j][signature] += 1
+def unique_fvs(fvs):
+    """
+    Creates a list of unique feature vectors from a list
 
-    return feature_vectors
+    Args:
+        fvs (list): a list of feature vectors
 
+    Returns:
+        list: a list of unique feature vectors
+    """
+    out = []
+    for i in fvs:
+        if (i.signatures not in out):
+            out.append(i.signatures)
+    return out
+
+def group_fvs(fvs):
+    """
+    Groups feature vectors based on their type
+
+    Args:
+        fvs (list): a list of feature vectors
+
+    Returns:
+        list: a list where the first element is a set of unique feature vectors and the second is a list of feature vectrors grouped by type
+    """
+    keys = unique_fvs(fvs)
+    grouped = [[] for _ in keys]
+
+    for fv in fvs:
+        t = fv.signatures
+        i = keys.index(t)
+        grouped[i].append(fv)
+    
+    return [keys, grouped]
+
+def find_index(lst, attr, value):
+    """
+    A function to extract the first occurrence of an object with a specific value for one attribute from a list
+
+    Args:
+        lst (list): the list to extract from
+        attr (string): the name of the attribute as a string
+        value (any): the value of the attribute
+
+    Returns:
+        int: the index of the first occurrence
+    """
+    return next((i for i, obj in enumerate(lst) if getattr(obj, attr) == value), -1)
+
+def make_neighbors_subgraph(graph, index):
+    """
+    A function to make a subgraph representing an atom's LAE from its index
+
+    Args:
+        graph (Graph): the graph representing the system
+        index (int): the index of the atom in question
+
+    Returns:
+        Graph: a subgraph containing the given atom and its neighbours along with the neighborhood relationships
+    """
+    ns = list(graph.adj_list[index])
+    ns.append(index)
+    return graph.make_subgraph(ns)
