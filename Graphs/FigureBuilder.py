@@ -32,18 +32,19 @@ class FigureBuilder:
         # To show the animation, a reference to the object returned by this function MUST be kept in memory to stop the garbage collector from eating it up!
         return FuncAnimation(self.fig, self.update, frames=frames, interval=interval, init_func=self.init_func)
 
-    def add_plot(self, chart_type, **kwargs):
+    def add_plot(self, chart_type, plot_pos, **kwargs):
         # Make sure chart_type is callable to avoid undefined and hard to diagnose behaviour
         if not callable(chart_type):
             raise TypeError(f"chart_type must be a class or at least a callable object, instead is: {type(chart_type)}")
           
         # Try to instance chart_type and handle errors
         try:
-            instance = chart_type(**kwargs)
+            instance = chart_type(ax=self.axs[plot_pos], **kwargs)
             if isinstance(instance, animated_plot):
                 self.anim_list.append(instance)
             else:
                 self.plot_list.append(instance)
+            self.axs[plot_pos] = instance.ax
         except TypeError as e:
             raise TypeError(f"Error while instantiating {chart_type} with args: {kwargs}.\nError: {e}")
 
