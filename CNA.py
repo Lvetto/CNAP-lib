@@ -249,46 +249,12 @@ def get_occurrences(signatures):
         signatures (list): a list of signatures. Usually the return value of compute_signatures
 
     Returns:
-        dict: a dict where keys are unique signatures in the system and values are the number of occurrences
-    """
-
-    """
-    Count occurrences for each unique signature in the system
-
-    Args:
-        signatures (list): a list of signatures. Usually the return value of compute_signatures
-
-    Returns:
-        dict: a dict where keys are unique signatures in the system and values are the number of occurrences
+        list: a list of pairs. The first element is a signature, the second its number of occurrences
     """
 
     unique_sigs, counts = np.unique(signatures, axis=0, return_counts=True)
 
-    return {tuple(sig): count for sig, count in zip(unique_sigs, counts)}
-
-class FeatureVector:
-    """
-    A container class to encapsulate the data needed to define a feature vector 
-    """
-    def __init__(self, position, signatures):
-        """
-        Constructor for the FeatureVector class
-
-        Args:
-            position (np.array): the coordinates of the atom we are representing
-            signatures (list): a list of signatures the atom participates in
-        """
-        self.position = position
-        self.signatures = get_occurrences(signatures)
-    
-    def __repr__(self):
-        """
-        Allows for the formatted printing of the information contained in a FeatureVector
-
-        Returns:
-            string: a human readable representation of the feature vector
-        """
-        return f"Position: {self.position}\tSignatures: {self.signatures}"
+    return [(tuple(sig), count) for sig, count in zip(unique_sigs, counts)] #{tuple(sig): count for sig, count in zip(unique_sigs, counts)}
 
 def get_feature_vectors(graph):
     """
@@ -298,7 +264,7 @@ def get_feature_vectors(graph):
         graph (Graph): a graph representing the neighborhood relationships of the atoms
 
     Returns:
-        list: a list of feature vectors
+        list: a list of feature vectors (as lists of signatures, counts)
     """
     sigs = compute_signatures(graph)
     bonds = graph.unique_bonds
@@ -309,11 +275,8 @@ def get_feature_vectors(graph):
         n1, n2 = bond
         sigs_per_node[n1].append(sig)
         sigs_per_node[n2].append(sig)
-    
-    if (len(graph.positions) > 0):
-        out = [FeatureVector(p, s) for p,s in zip(graph.positions, sigs_per_node)]
-    else:
-        out = [FeatureVector(None, s) for s in sigs_per_node]
+
+    out = [get_occurrences(i) for i in sigs_per_node]
 
     return out
 
@@ -329,8 +292,9 @@ def unique_fvs(fvs):
     """
     out = []
     for i in fvs:
-        if (i.signatures not in out):
-            out.append(i.signatures)
+        if (i not in out):
+            out.append(i)
+
     return out
 
 def group_fvs(fvs):
@@ -341,31 +305,12 @@ def group_fvs(fvs):
         fvs (list): a list of feature vectors
 
     Returns:
-        list: a list where the first element is a set of unique feature vectors and the second is a list of feature vectrors grouped by type
+        list: a list where the first element is a set of unique feature vectors and the second is a list of feature vector's indices grouped by type
     """
     keys = unique_fvs(fvs)
-    grouped = [[] for _ in keys]
+    matching_indices = [np.array([i for i, comp in enumerate(fvs) if comp == key]) for key in keys]
 
-    for fv in fvs:
-        t = fv.signatures
-        i = keys.index(t)
-        grouped[i].append(fv)
-    
-    return [keys, grouped]
-
-def find_index(lst, attr, value):
-    """
-    A function to extract the first occurrence of an object with a specific value for one attribute from a list
-
-    Args:
-        lst (list): the list to extract from
-        attr (string): the name of the attribute as a string
-        value (any): the value of the attribute
-
-    Returns:
-        int: the index of the first occurrence
-    """
-    return next((i for i, obj in enumerate(lst) if getattr(obj, attr) == value), -1)
+    return [keys, matching_indices]
 
 def make_neighbors_subgraph(graph, index):
     """
