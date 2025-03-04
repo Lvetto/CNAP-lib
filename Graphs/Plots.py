@@ -135,6 +135,15 @@ class better_particle_plot(plot_3d):
     def set_lims(self):
         pass
 
+class rotating_particle_plot(better_particle_plot, animated_plot):
+    def __init__(self, ax, points=[], lines=[], surfaces=[], labels=[], title="", hide_frames=True, legend=False, rot_steps=(0,1,0), rot0=(20,0,0)):
+        super().__init__(ax, points, lines, surfaces, labels, title, hide_frames, legend)
+        self.rot_steps = rot_steps
+        self.rot = rot0
+
+    def update(self, frame):
+        self.ax.view_init(elev=self.rot_steps[0]*frame + self.rot[0], azim=self.rot_steps[1]*frame + self.rot[1], roll=self.rot_steps[2]*frame + self.rot[2])  # Rotate by frame degrees
+        return self.scatters, self.lines, self.labels, self.surfaces,
 
 class graph_plot(better_particle_plot):
     def __init__(self, ax, graph, pointsize=100, pointcolor="C0", pointalpha=1, linesize=5, linestyle="-", linecolor="k", linealpha=1, labels=[], title="", hide_frames=True):
@@ -151,6 +160,15 @@ class graph_plot(better_particle_plot):
         super().__init__(ax, pointclouds, linesets, [], labels, title, hide_frames)
 
 
+class rotating_graph_plot(graph_plot, animated_plot):
+    def __init__(self, ax, graph, pointsize=100, pointcolor="C0", pointalpha=1, linesize=5, linestyle="-", linecolor="k", linealpha=1, labels=[], title="", hide_frames=True, rot_steps=[0, 1, 0], rot0=[20, 0, 0]):
+        super().__init__(ax, graph, pointsize, pointcolor, pointalpha, linesize, linestyle, linecolor, linealpha, labels, title, hide_frames)
+        self.rot_steps = rot_steps
+        self.rot = rot0
+
+    def update(self, frame):
+        self.ax.view_init(elev=self.rot_steps[0]*frame + self.rot[0], azim=self.rot_steps[1]*frame + self.rot[1], roll=self.rot_steps[2]*frame + self.rot[2])  # Rotate by frame degrees
+        return self.scatters,
 
 
 # A plot to show an arbitrary amount of 3d lines

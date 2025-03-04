@@ -69,11 +69,14 @@ class FigureBuilder:
         else:
             return self.axs[item]
     
-    def show(self, frames=0, interval=50):
+    def show(self, frames=0, interval=50, save=False, path="", fps=20):
         if (len(self.anim_list)):
             self.anim_obj = self.anim(frames, interval)
-
-        plt.show()
+            
+            if (save):
+                self.anim_obj.save(path, "pillow", fps)
+            else:
+                plt.show()
 
     @property
     def shape(self):
