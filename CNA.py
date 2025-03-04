@@ -119,6 +119,9 @@ class Graph:
             int: lenght of the longest chain starting from any node in the graph
         """
 
+        # Note: there is a bug where lenght is calculated incorrectly for closed chains
+        # should be easily solved by removing the starting node from the list of explored nodes, once the algorithm is far enough along
+
         max_lenght = 0
         for i,_ in enumerate(self.adj_list):
             max_lenght = max(self.longest_chain_from_node(i), max_lenght)
