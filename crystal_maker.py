@@ -116,6 +116,6 @@ def make_cube_planes(step, repetitions):
 
 if __name__ == "__main__":
     basic_cell = fcc_cell(1)
-    particles = cubic_lattice_from_cell(1, 1, basic_cell)
-    write_xyz(particles, "out.xyz")
+    particles = cubic_lattice_from_cell(1, 10, basic_cell)
+    write_xyz(particles, "data/fcc10.xyz")
 
