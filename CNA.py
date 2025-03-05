@@ -81,7 +81,7 @@ class Graph:
         """
 
         # This is a slightly modified version of Depth First Search
-        
+
         max_lenght = 0
         discovered = []
         stack = []

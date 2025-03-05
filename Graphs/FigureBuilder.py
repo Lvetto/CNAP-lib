@@ -39,12 +39,19 @@ class FigureBuilder:
           
         # Try to instance chart_type and handle errors
         try:
-            instance = chart_type(ax=self.axs[plot_pos], **kwargs)
+            instance = chart_type(ax=self[plot_pos], **kwargs)
             if isinstance(instance, animated_plot):
                 self.anim_list.append(instance)
             else:
                 self.plot_list.append(instance)
-            self.axs[plot_pos] = instance.ax
+            if (not isinstance(plot_pos, int)):
+                if (len(plot_pos) > len(self.shape)):
+                    self.axs[plot_pos[0]] = instance.ax
+                else:
+                    self.axs[plot_pos] = instance.ax
+            else:
+                self.axs[plot_pos] = instance.ax
+
         except TypeError as e:
             raise TypeError(f"Error while instantiating {chart_type} with args: {kwargs}.\nError: {e}")
 
@@ -65,7 +72,10 @@ class FigureBuilder:
         # Allows access to the axs array by using the [] syntax on the object.
         # The if-else is needed to support figures with 1 or multiple rows/columns with the same interface
         if (isinstance(item, tuple)) or (isinstance(item, list)):
-            return self.axs[*item]
+            if (len(self.shape) > 1):
+                return self.axs[*item]
+            else:
+                return self.axs[item[0]]
         else:
             return self.axs[item]
     
@@ -82,3 +92,6 @@ class FigureBuilder:
     def shape(self):
         # this is a simple property that returns the number of rows and columns in the figure
         return self.axs.shape
+
+    def __repr__(self):
+        return f"Shape: {self.shape}\tContents: {self.plot_list}"

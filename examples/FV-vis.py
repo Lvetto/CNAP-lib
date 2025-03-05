@@ -8,10 +8,10 @@ from random import random
 
 # create a periodic lattice
 a = 1
-lattice = np.array(cubic_lattice_from_cell(1, 5, bcc_cell(a)))
+lattice = np.array(cubic_lattice_from_cell(1, 3, fcc_cell(a)))
 
 # make a graph to represent the system
-g = Graph(adjacency_matrix(0, lattice, 1.1*a), node_positions=lattice)
+g = Graph(adjacency_matrix(0, lattice, 0.8*a), node_positions=lattice)
 
 # create feature vectors, group them and format the data
 fvs = get_feature_vectors(g)
