@@ -96,6 +96,9 @@ class Graph:
                 max_lenght = max(max_lenght, l)
 
                 for w in self.adj_list[v]:
+                    if ((l>=2) and (w == starting_node)):
+                        max_lenght = max(max_lenght, l+1)
+
                     if (w not in discovered):
                         stack.append((w, l+1))
 
