@@ -9,3 +9,4 @@ This program is meant as a Command Line Interface to use some of the functionali
 
 if __name__ == "__main__":
     main_loop(commands, compile_names(commands))
+

@@ -1,0 +1,10 @@
+{
+    "sigs": "[((4, 4, 4), 6), ((6, 6, 6), 8)]",
+    "pattern_id": "CNAP-1",
+    "pattern_name": "BCC-bulk",
+    "description": "The pattern found in a perfect, periodic BCC bulk",
+    "additional_notes": "",
+    "sources": [
+        "BCC-bulk"
+    ]
+}

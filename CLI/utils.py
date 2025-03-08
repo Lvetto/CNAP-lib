@@ -28,7 +28,10 @@ def main_loop(commands, command_names):
             else:
                 command = find_from_name(command, commands, command_names)
                 if command:
-                    command.execute(state, args)
+                    #try:
+                        command.execute(state, args)
+                    #except:
+                    #    print("Something went wrong")
                 else:
                     print("Unknown command. Type 'help' for available commands.")
 

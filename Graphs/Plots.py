@@ -104,7 +104,7 @@ class better_particle_plot(plot_3d):
         self.draw_labels(labels)
 
         if legend:
-            self.ax.legend()
+            self.ax.legend(loc="upper left", bbox_to_anchor=(0, 1.15))
 
     def draw_points(self, pointclouds):
         for cloud in pointclouds:

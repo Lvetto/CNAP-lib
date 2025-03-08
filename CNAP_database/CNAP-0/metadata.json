@@ -1,0 +1,10 @@
+{
+    "sigs": "[((4, 2, 1), 12)]",
+    "pattern_id": "CNAP-0",
+    "pattern_name": "FCC-bulk",
+    "description": "The pattern found in a perfect, periodic FCC bulk",
+    "additional_notes": "",
+    "sources": [
+        "FCC-bulk"
+    ]
+}

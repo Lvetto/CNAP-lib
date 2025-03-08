@@ -1,0 +1,14 @@
+[
+  {
+    "sigs": "[((4, 4, 4), 6), ((6, 6, 6), 8)]",
+    "pattern_id": "CNAP-1",
+    "pattern_name": "BCC-bulk",
+    "folder": "CNAP-1"
+  },
+  {
+    "sigs": "[((4, 2, 1), 12)]",
+    "pattern_id": "CNAP-0",
+    "pattern_name": "FCC-bulk",
+    "folder": "CNAP-0"
+  }
+]

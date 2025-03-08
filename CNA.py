@@ -104,6 +104,9 @@ class Graph:
 
         return max_lenght
 
+    def save(self, filepath):
+        np.savez_compressed(filepath, adj_mat=self.adj_mat, pos=self.positions)
+
     def __repr__(self):
         return f"Number of nodes: {self.number_of_nodes}, number of bonds: {self.number_of_unique_bonds}"
 
