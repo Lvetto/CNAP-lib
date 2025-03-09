@@ -210,6 +210,7 @@ class ShowPlot(Command):
     
     def execute(self, state, args):
         plt.show()
+        plt.close()
 
 class ComputeFVs(Command):
     def __init__(self):
@@ -290,9 +291,12 @@ class MapFVs(Command):
                 return
 
         else:
-            print("Available FVs sets:")
-            self.list_state(state, "fvs")
-            d_ind = int(input("Enter the index of the set to plot: "))
+            if (args):
+                d_ind = int(args[0])
+            else:
+                print("Available FVs sets:")
+                self.list_state(state, "fvs")
+                d_ind = int(input("Enter the index of the set to plot: "))
 
             try:
                 graph, keys, grouped = state["fvs"][d_ind]
@@ -303,7 +307,10 @@ class MapFVs(Command):
             print("Available FVs:")
             [print(f"{n}: {i}") for n,i in enumerate(keys)]
             inds = input("Emter the indices of the FVs to plot: ").split(" ")
-            inds = [int(i) for i in inds]
+            if (inds[0] == "a"):
+                inds = range(len(keys))
+            else:
+                inds = [int(i) for i in inds if i != " "]
 
         inds = np.array(inds)
 
@@ -377,8 +384,12 @@ class SplitFVs(Command):
 
         print("Available FVs:")
         [print(f"\t{n}: {i}") for n,i in enumerate(keys)]
-        inds = input("\n\nEnter a sequence of indices (separated by whitespaces) to select FVs to add to the plot: ")
-        inds = [int(i) for i in inds if i != " "]
+        inds = input("\n\nEnter a sequence of indices (separated by whitespaces) to select FVs to add to the plot: ").split(" ")
+    
+        if (inds[0] == "a"):
+            inds = range(len(keys))
+        else:
+            inds = [int(i) for i in inds if i != " "]
 
         colors = [(random(), random(), random()) for _ in grouped]
 
@@ -453,7 +464,11 @@ class ShowFromDB(Command):
             print(f"{n}:\t{CNAP["pattern_name"]}:\t{CNAP["pattern_id"]}\n\t\t\t{CNAP["sigs"]}\n")
         
         inds = input("\nEnter a sequence of indices (separated by whitespaces) to select patterns to plot: ")
-        inds = [int(i) for i in inds if i != " "]
+    
+        if (inds[0] == "a"):
+            inds = range(len(index))
+        else:
+            inds = [int(i) for i in inds if i != " "]
         
         for n, i in enumerate(inds):
             self.write_to_state(state, "figs", FigureBuilder((1, 1)))
@@ -484,7 +499,31 @@ class ShowFromDB(Command):
             fig.fig.text(0.01, 0.55, f"Number of nodes: {g.number_of_nodes}", fontsize=15)
             fig.fig.text(0.01, 0.5, f"Number of bonds: {g.number_of_unique_bonds}", fontsize=15)
 
+class ShowGraph(Command):
+    def __init__(self):
+        name = "show_graph"
+        aliases = ["sg"]
+        description = """
+                        Plot a graph
+                        First argument is the index of the graph to plot (from state[graphs]) (optional)
+        """
+        super().__init__(name, description, aliases)
+    
+    def execute(self, state, args):
+        if (args):
+            ind = int(args[0])
+        else:
+            print("Available graphs:")
+            self.list_state(state, "graphs")
+            ind = int(input("Enter the index of the graph to plot: "))
+        
+        g = state["graphs"][ind]
+        self.write_to_state(state, "figs", FigureBuilder((1,1)))
+        fig = state["figs"][-1]
 
-commands = [Help(), LoadXyz(), ListData(), ComputeGraph(), ReadState(), MakeGraphPlot(), ShowPlot(), ComputeFVs(), Clear(), MapFVs(), PlotFV(), SplitFVs(), ExportFV(), ShowFromDB()]
+        fig.add_plot(graph_plot, plot_pos=0, graph=g, hide_frames=True, pointsize=50, linesize=1, linealpha=0.6, pointalpha=0.8)
+
+commands = [Help(), LoadXyz(), ListData(), ComputeGraph(), ReadState(), MakeGraphPlot(), ShowPlot(),
+            ComputeFVs(), Clear(), MapFVs(), PlotFV(), SplitFVs(), ExportFV(), ShowFromDB(), ShowGraph()]
 
  

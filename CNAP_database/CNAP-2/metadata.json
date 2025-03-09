@@ -1,0 +1,10 @@
+{
+    "sigs": "[((0, 0, 0), 6)]",
+    "pattern_id": "CNAP-2",
+    "pattern_name": "SC-bulk",
+    "description": "The structure found in a Simple Cubic bulk. Very simple as pairs of atoms always have 0 CNs.",
+    "additional_notes": "",
+    "sources": [
+        "SC-bulk"
+    ]
+}

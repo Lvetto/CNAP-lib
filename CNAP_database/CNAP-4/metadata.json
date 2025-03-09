@@ -1,0 +1,10 @@
+{
+    "sigs": "[((5, 4, 3), 12), ((6, 6, 3), 4)]",
+    "pattern_id": "CNAP-4",
+    "pattern_name": "Diamond-bulk?",
+    "description": "Pattern found in a diamond bulk. It requires a cutoff distance longer then first neighbor distance",
+    "additional_notes": "",
+    "sources": [
+        "Diamond-bulk"
+    ]
+}

@@ -1,0 +1,10 @@
+{
+    "sigs": "[((4, 2, 1), 6), ((4, 2, 2), 6)]",
+    "pattern_id": "CNAP-3",
+    "pattern_name": "HCP-bulk",
+    "description": "Pattern found in an HCP bulk",
+    "additional_notes": "",
+    "sources": [
+        "HCP-bulk"
+    ]
+}

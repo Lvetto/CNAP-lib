@@ -8,10 +8,10 @@ from random import random
 from old.pp_io import read_xyz
 
 # read data from file
-filepath = r"data/bcc5.xyz"
+filepath = r"data/hex10.xyz"
 elements, points = read_xyz(filepath)
 
-cutoff = 1.1
+cutoff = 4.5
 
 # make a graph to represent the system
 g = Graph(adjacency_matrix(0, points, cutoff), node_positions=points)
